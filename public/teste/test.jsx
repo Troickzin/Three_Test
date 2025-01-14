@@ -1,14 +1,17 @@
 // filepath: /C:/Users/troic/Documents/Projetos/tres-teste/public/teste/test.jsx
 "use client";
-import React, { useEffect } from "react";
-import { TextureLoader, NearestFilter, CanvasTexture } from "three";
+import React, { useEffect, useState } from "react";
+import { TextureLoader, NearestFilter, CanvasTexture, DoubleSide } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { useLoader } from "@react-three/fiber";
 
 export function Test(props) {
   const obj = useLoader(
     OBJLoader,
-    "https://three-test-topaz.vercel.app//models/test/model.obj"
+    `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/model.obj`
+  );
+  const [imageSrc, setImageSrc] = useState(
+    () => sessionStorage.getItem("combinedTexture") || null
   );
 
   useEffect(() => {
@@ -22,22 +25,24 @@ export function Test(props) {
     };
 
     // URLs das texturas
-    const baseTextureUrl = `https://three-test-topaz.vercel.app//models/test/texture/${props.baseTexture}.png`;
-    const shirtTextureUrl = `https://three-test-topaz.vercel.app//models/test/texture/Roupas/${props.shirtTexture}.png`;
-    const pantTextureUrl = `https://three-test-topaz.vercel.app//models/test/texture/Roupas/${props.pantTexture}.png`;
+    const baseTextureUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/texture/${props.baseTexture}.png`;
+    const shirtTextureUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/texture/Roupas/${props.shirtTexture}.png`;
+    const pantTextureUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/texture/Roupas/${props.pantTexture}.png`;
 
     // Carregar todas as texturas
     Promise.all([
       loadTexture(baseTextureUrl),
-      loadTexture(shirtTextureUrl),
-      loadTexture(pantTextureUrl),
+      loadTexture(shirtTextureUrl).catch(() => null), // Capturar erro se a textura não existir
+      loadTexture(pantTextureUrl).catch(() => null), // Capturar erro se a textura não existir
     ])
       .then(([baseTexture, shirtTexture, pantTexture]) => {
         // Configurar as texturas como pixel art
         [baseTexture, shirtTexture, pantTexture].forEach((texture) => {
-          texture.minFilter = NearestFilter;
-          texture.magFilter = NearestFilter;
-          texture.generateMipmaps = false;
+          if (texture) {
+            texture.minFilter = NearestFilter;
+            texture.magFilter = NearestFilter;
+            texture.generateMipmaps = false;
+          }
         });
 
         obj.scale.set(2, 2, 2);
@@ -51,14 +56,16 @@ export function Test(props) {
 
         // Desenhar as texturas no canvas
         const drawTexture = (texture, alpha = 1.0) => {
-          const image = texture.image;
-          context.globalAlpha = alpha;
-          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          if (texture) {
+            const image = texture.image;
+            context.globalAlpha = alpha;
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          }
         };
 
         drawTexture(baseTexture);
-        drawTexture(shirtTexture, 1.0); // Ajuste o valor alpha conforme necessário
-        drawTexture(pantTexture, 1.0); // Ajuste o valor alpha conforme necessário
+        if (pantTexture) drawTexture(pantTexture, 1.0); // Desenhar a calça primeiro
+        if (shirtTexture) drawTexture(shirtTexture, 1.0); // Desenhar a camisa por cima
 
         // Criar uma textura combinada a partir do canvas
         const combinedTexture = new CanvasTexture(canvas);
@@ -66,10 +73,16 @@ export function Test(props) {
         combinedTexture.magFilter = NearestFilter;
         combinedTexture.generateMipmaps = false;
 
+        // Converter o canvas em uma URL de dados e definir como fonte da imagem
+        const dataURL = canvas.toDataURL();
+        setImageSrc(dataURL);
+        sessionStorage.setItem("combinedTexture", dataURL);
+
         // Aplicar a textura combinada ao material da malha
         obj.traverse((child) => {
           if (child.isMesh) {
             child.material.map = combinedTexture;
+            child.material.side = DoubleSide; // Renderizar a textura em ambos os lados
             child.material.transparent = true;
             child.material.alphaTest = 0.5;
             child.material.needsUpdate = true;
@@ -81,5 +94,9 @@ export function Test(props) {
       });
   }, [obj, props.baseTexture, props.shirtTexture, props.pantTexture]);
 
-  return <primitive object={obj} />;
+  return (
+    <>
+      <primitive object={obj} />
+    </>
+  );
 }
