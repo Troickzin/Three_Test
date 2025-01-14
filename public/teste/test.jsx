@@ -1,3 +1,4 @@
+// filepath: /C:/Users/troic/Documents/Projetos/tres-teste/public/teste/test.jsx
 "use client";
 import React, { useEffect } from "react";
 import { TextureLoader, NearestFilter, CanvasTexture } from "three";
@@ -9,63 +10,76 @@ export function Test(props) {
     OBJLoader,
     "http://localhost:3000/models/test/model.obj"
   );
-  const baseTexture = useLoader(
-    TextureLoader,
-    `http://localhost:3000/models/test/texture/${props.baseTexture}.png`
-  );
-  const shirtTexture = useLoader(
-    TextureLoader,
-    `http://localhost:3000/models/test/texture/Roupas/${props.shirtTexture}.png`
-  );
-  const pantTexture = useLoader(
-    TextureLoader,
-    `http://localhost:3000/models/test/texture/Roupas/${props.pantTexture}.png`
-  );
 
   useEffect(() => {
-    obj.scale.set(2, 2, 2);
-    obj.position.set(0, -0.7, 0);
+    const textureLoader = new TextureLoader();
 
-    // Configurar as texturas como pixel art
-    [baseTexture, shirtTexture, pantTexture].forEach((texture) => {
-      texture.minFilter = NearestFilter;
-      texture.magFilter = NearestFilter;
-      texture.generateMipmaps = false;
-    });
-
-    // Criar um canvas para combinar as texturas
-    const canvas = document.createElement("canvas");
-    canvas.width = 64;
-    canvas.height = 64;
-    const context = canvas.getContext("2d");
-
-    // Desenhar as texturas no canvas
-    const drawTexture = (texture, alpha = 1.0) => {
-      const image = texture.image;
-      context.globalAlpha = alpha;
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    // Função para carregar uma textura
+    const loadTexture = (url) => {
+      return new Promise((resolve, reject) => {
+        textureLoader.load(url, resolve, undefined, reject);
+      });
     };
 
-    drawTexture(baseTexture);
-    drawTexture(shirtTexture, 1.0); // Ajuste o valor alpha conforme necessário
-    drawTexture(pantTexture, 1.0); // Ajuste o valor alpha conforme necessário
+    // URLs das texturas
+    const baseTextureUrl = `http://localhost:3000/models/test/texture/${props.baseTexture}.png`;
+    const shirtTextureUrl = `http://localhost:3000/models/test/texture/Roupas/${props.shirtTexture}.png`;
+    const pantTextureUrl = `http://localhost:3000/models/test/texture/Roupas/${props.pantTexture}.png`;
 
-    // Criar uma textura combinada a partir do canvas
-    const combinedTexture = new CanvasTexture(canvas);
-    combinedTexture.minFilter = NearestFilter;
-    combinedTexture.magFilter = NearestFilter;
-    combinedTexture.generateMipmaps = false;
+    // Carregar todas as texturas
+    Promise.all([
+      loadTexture(baseTextureUrl),
+      loadTexture(shirtTextureUrl),
+      loadTexture(pantTextureUrl),
+    ])
+      .then(([baseTexture, shirtTexture, pantTexture]) => {
+        // Configurar as texturas como pixel art
+        [baseTexture, shirtTexture, pantTexture].forEach((texture) => {
+          texture.minFilter = NearestFilter;
+          texture.magFilter = NearestFilter;
+          texture.generateMipmaps = false;
+        });
 
-    // Aplicar a textura combinada ao material da malha
-    obj.traverse((child) => {
-      if (child.isMesh) {
-        child.material.map = combinedTexture;
-        child.material.transparent = true;
-        child.material.alphaTest = 0.5;
-        child.material.needsUpdate = true;
-      }
-    });
-  }, [obj, baseTexture, shirtTexture, pantTexture]);
+        obj.scale.set(2, 2, 2);
+        obj.position.set(0, -1.8, 0);
+
+        // Criar um canvas para combinar as texturas
+        const canvas = document.createElement("canvas");
+        canvas.width = 64;
+        canvas.height = 64;
+        const context = canvas.getContext("2d");
+
+        // Desenhar as texturas no canvas
+        const drawTexture = (texture, alpha = 1.0) => {
+          const image = texture.image;
+          context.globalAlpha = alpha;
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        };
+
+        drawTexture(baseTexture);
+        drawTexture(shirtTexture, 1.0); // Ajuste o valor alpha conforme necessário
+        drawTexture(pantTexture, 1.0); // Ajuste o valor alpha conforme necessário
+
+        // Criar uma textura combinada a partir do canvas
+        const combinedTexture = new CanvasTexture(canvas);
+        combinedTexture.minFilter = NearestFilter;
+        combinedTexture.magFilter = NearestFilter;
+        combinedTexture.generateMipmaps = false;
+
+        // Aplicar a textura combinada ao material da malha
+        obj.traverse((child) => {
+          if (child.isMesh) {
+            child.material.map = combinedTexture;
+            child.material.transparent = true;
+            child.material.alphaTest = 0.5;
+            child.material.needsUpdate = true;
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar texturas:", error);
+      });
+  }, [obj, props.baseTexture, props.shirtTexture, props.pantTexture]);
 
   return <primitive object={obj} />;
 }

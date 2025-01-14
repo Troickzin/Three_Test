@@ -1,9 +1,9 @@
 "use client";
 
 import { Test } from "@/public/teste/test";
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { Suspense, useRef, useState } from "react";
+import { OrbitControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { Suspense, useState } from "react";
 
 export default function Home() {
   const [baseNumber, setBaseNumber] = useState(0);
@@ -50,7 +50,7 @@ export default function Home() {
           camera={{ position: [0, 1, -5], rotation: [0, Math.PI, 0] }}
         >
           <Suspense fallback={null}>
-            <ambientLight intensity={Math.PI / 2} />
+            <ambientLight intensity={0.5} />
             <spotLight
               position={[20, 20, -10]}
               angle={0.15}
@@ -58,6 +58,7 @@ export default function Home() {
               decay={0}
               intensity={Math.PI}
             />
+            <OrbitControls />
             <Test
               baseTexture={"base" + baseNumber}
               shirtTexture={"shirt" + shirtNumber}
