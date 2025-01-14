@@ -8,7 +8,7 @@ import { useLoader } from "@react-three/fiber";
 export function Test(props) {
   const obj = useLoader(
     OBJLoader,
-    "http://localhost:3000/models/test/model.obj"
+    "https://three-test-topaz.vercel.app//models/test/model.obj"
   );
 
   useEffect(() => {
@@ -22,9 +22,9 @@ export function Test(props) {
     };
 
     // URLs das texturas
-    const baseTextureUrl = `http://localhost:3000/models/test/texture/${props.baseTexture}.png`;
-    const shirtTextureUrl = `http://localhost:3000/models/test/texture/Roupas/${props.shirtTexture}.png`;
-    const pantTextureUrl = `http://localhost:3000/models/test/texture/Roupas/${props.pantTexture}.png`;
+    const baseTextureUrl = `https://three-test-topaz.vercel.app//models/test/texture/${props.baseTexture}.png`;
+    const shirtTextureUrl = `https://three-test-topaz.vercel.app//models/test/texture/Roupas/${props.shirtTexture}.png`;
+    const pantTextureUrl = `https://three-test-topaz.vercel.app//models/test/texture/Roupas/${props.pantTexture}.png`;
 
     // Carregar todas as texturas
     Promise.all([
