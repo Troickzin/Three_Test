@@ -1,7 +1,6 @@
 "use client";
 
 import { Test } from "@/public/teste/test";
-import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useState } from "react";
 
@@ -58,7 +57,6 @@ export default function Home() {
               decay={0}
               intensity={Math.PI}
             />
-            <OrbitControls />
             <Test
               baseTexture={"base" + baseNumber}
               shirtTexture={"shirt" + shirtNumber}
