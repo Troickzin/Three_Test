@@ -8,7 +8,9 @@ import { useLoader } from "@react-three/fiber";
 export function Test(props) {
   const obj = useLoader(
     OBJLoader,
-    `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/model.obj`
+    `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/${
+      props.slim ? "model_slim.obj" : "model.obj"
+    }`
   );
   const [imageSrc, setImageSrc] = useState(
     () => sessionStorage.getItem("combinedTexture") || null
@@ -17,26 +19,24 @@ export function Test(props) {
   useEffect(() => {
     const textureLoader = new TextureLoader();
 
-    // Função para carregar uma textura
     const loadTexture = (url) => {
       return new Promise((resolve, reject) => {
         textureLoader.load(url, resolve, undefined, reject);
       });
     };
 
-    // URLs das texturas
+    // https://mineskin.eu/skin/troickzin
+
     const baseTextureUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/texture/${props.baseTexture}.png`;
     const shirtTextureUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/texture/Roupas/${props.shirtTexture}.png`;
     const pantTextureUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/models/test/texture/Roupas/${props.pantTexture}.png`;
 
-    // Carregar todas as texturas
     Promise.all([
       loadTexture(baseTextureUrl),
-      loadTexture(shirtTextureUrl).catch(() => null), // Capturar erro se a textura não existir
-      loadTexture(pantTextureUrl).catch(() => null), // Capturar erro se a textura não existir
+      loadTexture(shirtTextureUrl).catch(() => null),
+      loadTexture(pantTextureUrl).catch(() => null),
     ])
       .then(([baseTexture, shirtTexture, pantTexture]) => {
-        // Configurar as texturas como pixel art
         [baseTexture, shirtTexture, pantTexture].forEach((texture) => {
           if (texture) {
             texture.minFilter = NearestFilter;
@@ -48,13 +48,11 @@ export function Test(props) {
         obj.scale.set(2, 2, 2);
         obj.position.set(0, -1.8, 0);
 
-        // Criar um canvas para combinar as texturas
         const canvas = document.createElement("canvas");
         canvas.width = 64;
         canvas.height = 64;
         const context = canvas.getContext("2d");
 
-        // Desenhar as texturas no canvas
         const drawTexture = (texture, alpha = 1.0) => {
           if (texture) {
             const image = texture.image;
@@ -64,28 +62,28 @@ export function Test(props) {
         };
 
         drawTexture(baseTexture);
-        if (pantTexture) drawTexture(pantTexture, 1.0); // Desenhar a calça primeiro
-        if (shirtTexture) drawTexture(shirtTexture, 1.0); // Desenhar a camisa por cima
+        if (pantTexture) drawTexture(pantTexture, 1.0);
+        if (shirtTexture) drawTexture(shirtTexture, 1.0);
 
-        // Criar uma textura combinada a partir do canvas
         const combinedTexture = new CanvasTexture(canvas);
         combinedTexture.minFilter = NearestFilter;
         combinedTexture.magFilter = NearestFilter;
         combinedTexture.generateMipmaps = false;
 
-        // Converter o canvas em uma URL de dados e definir como fonte da imagem
         const dataURL = canvas.toDataURL();
         setImageSrc(dataURL);
         sessionStorage.setItem("combinedTexture", dataURL);
 
-        // Aplicar a textura combinada ao material da malha
         obj.traverse((child) => {
           if (child.isMesh) {
             child.material.map = combinedTexture;
-            child.material.side = DoubleSide; // Renderizar a textura em ambos os lados
+            child.material.side = DoubleSide;
             child.material.transparent = true;
             child.material.alphaTest = 0.5;
             child.material.needsUpdate = true;
+
+            child.castShadow = true;
+            child.receiveShadow = true;
           }
         });
       })
