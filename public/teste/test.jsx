@@ -166,11 +166,11 @@ export function Test(props) {
 
           // Combinar todos os canvases no canvas final
           finalContext.drawImage(baseCanvas, 0, 0);
-          finalContext.drawImage(shirtCanvas, 0, 0);
           finalContext.drawImage(cuecaCanvas, 0, 0);
-          finalContext.drawImage(pantCanvas, 0, 0);
           finalContext.drawImage(olhoCanvas, 0, 0);
           finalContext.drawImage(pupilaCanvas, 0, 0);
+          finalContext.drawImage(pantCanvas, 0, 0);
+          finalContext.drawImage(shirtCanvas, 0, 0);
 
           // Criar uma textura combinada a partir do canvas final
           const combinedTexture = new CanvasTexture(finalCanvas);
