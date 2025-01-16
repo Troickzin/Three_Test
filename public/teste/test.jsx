@@ -118,11 +118,6 @@ export function Test(props) {
             drawTexture(baseContext, baseTexture, 1.0, "destination-in");
           }
 
-          // Desenhar a textura da camisa
-          if (shirtTexture) {
-            drawTexture(shirtContext, shirtTexture, 1.0, "source-over");
-          }
-
           // Desenhar a textura da pupila e mudar sua cor usando multiplicação
           if (!pantTexture) {
             drawTexture(cuecaContext, cuecaTexture, 1.0, "source-over");
@@ -131,11 +126,6 @@ export function Test(props) {
             cuecaContext.fillRect(0, 0, cuecaCanvas.width, cuecaCanvas.height);
             cuecaContext.globalCompositeOperation = "source-over";
             drawTexture(cuecaContext, cuecaTexture, 1.0, "destination-in");
-          }
-
-          // Desenhar a textura da calça
-          if (pantTexture) {
-            drawTexture(pantContext, pantTexture, 1.0, "source-over");
           }
 
           // Desenhar a textura do olho
@@ -156,6 +146,16 @@ export function Test(props) {
             );
             pupilaContext.globalCompositeOperation = "source-over";
             drawTexture(pupilaContext, pupilaTexture, 1.0, "destination-in");
+          }
+
+          // Desenhar a textura da calça
+          if (pantTexture) {
+            drawTexture(pantContext, pantTexture, 1.0, "source-over");
+          }
+
+          // Desenhar a textura da camisa
+          if (shirtTexture) {
+            drawTexture(shirtContext, shirtTexture, 1.0, "source-over");
           }
 
           // Criar um canvas final para combinar todas as texturas
