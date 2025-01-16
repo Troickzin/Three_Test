@@ -6,10 +6,10 @@ import { OrbitControls } from "@react-three/drei";
 import { useEffect, Suspense, useState } from "react";
 
 export default function Home() {
-  const [baseNumber, setBaseNumber] = useState(0);
+  const [baseNumber, setBaseNumber] = useState(1);
   const [shirtNumber, setShirtNumber] = useState(0);
   const [pantNumber, setPantNumber] = useState(0);
-  const [colorNumber, setColorNumber] = useState("#f8eee7");
+  const [colorNumber, setColorNumber] = useState("#e3c8b5");
   const [pupileNumber, setPupileNumber] = useState("#59add2");
   const [cuecaNumber, setCuecaNumber] = useState("#ffffff");
   const [shadowEnable, setShadowEnable] = useState(true);
@@ -167,13 +167,13 @@ export default function Home() {
             <Suspense fallback={null}>
               {shadowEnable ? (
                 <>
-                  <ambientLight intensity={1.25} color="#ffeddb" />
+                  <ambientLight intensity={1} color="#ffeddb" />
                   <spotLight
                     position={[20, 15, -20]}
                     angle={0.15}
                     penumbra={1}
                     decay={0}
-                    intensity={1}
+                    intensity={0.3}
                     castShadow
                     shadow-mapSize-width={1024}
                     shadow-mapSize-height={1024}
@@ -183,7 +183,7 @@ export default function Home() {
                   />
                 </>
               ) : (
-                <ambientLight intensity={1.5} />
+                <ambientLight intensity={1} color="#ffeddb" />
               )}
 
               <OrbitControls />
