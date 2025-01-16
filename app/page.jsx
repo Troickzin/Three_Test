@@ -9,6 +9,9 @@ export default function Home() {
   const [baseNumber, setBaseNumber] = useState(0);
   const [shirtNumber, setShirtNumber] = useState(0);
   const [pantNumber, setPantNumber] = useState(0);
+  const [colorNumber, setColorNumber] = useState("#f8eee7");
+  const [pupileNumber, setPupileNumber] = useState("#59add2");
+  const [cuecaNumber, setCuecaNumber] = useState("#ffffff");
   const [shadowEnable, setShadowEnable] = useState(true);
   const [slimEnable, setSlimEnable] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
@@ -123,6 +126,31 @@ export default function Home() {
           />
         )}
       </div>
+      <div className="grid absolute justify-center items-center z-50 w-full bottom-10">
+        <div className="flex max-sm:grid gap-4 justify-center items-center w-full relative mt-2 max-sm:grid-cols-3">
+          <input
+            type="color"
+            onChange={(e) => {
+              setColorNumber(e.target.value);
+            }}
+            value={colorNumber}
+          ></input>
+          <input
+            type="color"
+            onChange={(e) => {
+              setCuecaNumber(e.target.value);
+            }}
+            value={cuecaNumber}
+          ></input>
+          <input
+            type="color"
+            onChange={(e) => {
+              setPupileNumber(e.target.value);
+            }}
+            value={pupileNumber}
+          ></input>
+        </div>
+      </div>
       <div className="grid items-center justify-items-center min-h-full p-8 pb-20 gap-16 sm:p-20 absolute">
         <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
           <Canvas
@@ -137,24 +165,35 @@ export default function Home() {
             camera={{ position: [0, 1, -5], rotation: [0, Math.PI, 0] }}
           >
             <Suspense fallback={null}>
-              <ambientLight intensity={0.3} />
-              <spotLight
-                position={[20, 15, -20]}
-                angle={0.15}
-                penumbra={1}
-                decay={0}
-                intensity={Math.PI}
-                castShadow={shadowEnable}
-                shadow-mapSize-width={1024}
-                shadow-mapSize-height={1024}
-                shadow-bias={-0.0001}
-                color="#E2FEFF"
-              />
+              {shadowEnable ? (
+                <>
+                  <ambientLight intensity={1.25} color="#ffeddb" />
+                  <spotLight
+                    position={[20, 15, -20]}
+                    angle={0.15}
+                    penumbra={1}
+                    decay={0}
+                    intensity={1}
+                    castShadow
+                    shadow-mapSize-width={1024}
+                    shadow-mapSize-height={1024}
+                    shadow-bias={-0.0001}
+                    // color="#ff9100"
+                    className="bg-[#ffeddb]"
+                  />
+                </>
+              ) : (
+                <ambientLight intensity={1.5} />
+              )}
+
               <OrbitControls />
               <Test
                 baseTexture={"base" + baseNumber}
                 shirtTexture={"shirt" + shirtNumber}
                 pantTexture={"pant" + pantNumber}
+                skinColor={colorNumber}
+                cuecaColor={cuecaNumber}
+                pupilaColor={pupileNumber}
                 slim={slimEnable}
               />
             </Suspense>
